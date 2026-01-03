@@ -41,7 +41,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>engnyg</title>
+    <title>@engnyg</title>
     <link rel="stylesheet" href="discord-decoration.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
@@ -125,39 +125,73 @@
         }
         @keyframes pulse { 0% {opacity:0.5; transform: scale(0.98);} 50% {opacity:1; transform: scale(1);} 100% {opacity:0.5; transform: scale(0.98);} }
 
-        /* --- 主容器 (3D) --- */
-        #tilt-wrapper {
-            transform-style: preserve-3d;
-            transition: transform 0.1s;
-            width: 100%;
-            max-width: 720px; /* 稍微加寬 */
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            padding: 20px;
-            opacity: 0;
-            transform: scale(0.9) translateY(30px);
-        }
-        
-        #tilt-wrapper.show {
-            opacity: 1;
-            animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        @keyframes popIn { to { transform: scale(1) translateY(0); } }
+        /* 3D 容器 */
+#tilt-wrapper {
+  transform-style: preserve-3d;
+  transition: transform 0.1s;
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  opacity: 0;
+  transform: scale(0.9) translateY(30px);
+}
 
-        /* --- 玻璃卡片 (樣式核心) --- */
-        .glass-card {
-            background: var(--glass-bg);
-            background-image: var(--glass-glow);
-            border: var(--glass-border);
-            border-radius: 20px;
-            backdrop-filter: blur(4px); /* 降低模糊度以增加通透感 */
-            -webkit-backdrop-filter: blur(12px);
-            padding: 28px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            position: relative;
-            transform: translateZ(20px);
-        }
+#tilt-wrapper.show {
+  opacity: 1;
+  animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 移除個別卡片的 3D 變換 */
+.glass-card {
+  background: var(--glass-bg);
+  background-image: var(--glass-glow);
+  border: var(--glass-border);
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 28px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  position: relative;
+  /* transform: translateZ(20px); */ /* 可以保留或移除 */
+}
+
+        
+        /* 3D 容器 */
+#tilt-wrapper {
+  transform-style: preserve-3d;
+  transition: transform 0.1s;
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  opacity: 0;
+  transform: scale(0.9) translateY(30px);
+}
+
+#tilt-wrapper.show {
+  opacity: 1;
+  animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 移除個別卡片的 3D 變換 */
+.glass-card {
+  background: var(--glass-bg);
+  background-image: var(--glass-glow);
+  border: var(--glass-border);
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 28px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  position: relative;
+  /* transform: translateZ(20px); */ /* 可以保留或移除 */
+}
+
 
         /* --- 個人資料區 --- */
         .header-row {
@@ -676,32 +710,34 @@
         loadSong(songs[songIndex]);
         audio.volume = 0.5;
 
-        // 替換現有的 3D 傾斜代碼
-const glassCards = document.querySelectorAll('.glass-card');
+// 3D 傾斜效果 - 整體一起動
 
-glassCards.forEach(card => {
-  card.addEventListener('mousemove', (e) => {
+if (wrapper) {
+  wrapper.addEventListener('mousemove', (e) => {
     if (window.innerWidth <= 768) return;
     
-    const rect = card.getBoundingClientRect();
+    const rect = wrapper.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
+    // 計算傾斜角度
     const rotateX = ((y - centerY) / centerY) * 10;
     const rotateY = ((x - centerX) / centerX) * -10;
     
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
-    card.style.transition = 'transform 0.1s ease';
+    // 應用到整個容器
+    wrapper.style.transform = `perspective(1500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+    wrapper.style.transition = 'transform 0.1s ease';
   });
   
-  card.addEventListener('mouseleave', () => {
-    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
-    card.style.transition = 'transform 0.5s ease';
+  wrapper.addEventListener('mouseleave', () => {
+    wrapper.style.transform = 'perspective(1500px) rotateX(0) rotateY(0) translateZ(0)';
+    wrapper.style.transition = 'transform 0.5s ease';
   });
-});
+}
+
 
 
         // 播放器邏輯
