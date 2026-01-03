@@ -41,7 +41,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>engnyg</title>
+    <title>@engnyg</title>
     <link rel="stylesheet" href="discord-decoration.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
@@ -371,6 +371,80 @@
             .track-info { width: 100%; text-align: center; margin: 10px 0; }
         }
 
+        /* 下雪特效 */
+#snow-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.snowflake {
+  position: absolute;
+  top: -10px;
+  color: #fff;
+  font-size: 1em;
+  font-family: Arial, sans-serif;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+  user-select: none;
+  animation: snowfall linear infinite;
+  opacity: 0;
+}
+
+@keyframes snowfall {
+  0% {
+    top: -10%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 110%;
+    opacity: 0;
+  }
+}
+
+/* 雪花飄動效果 */
+@keyframes sway {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(30px);
+  }
+}
+
+/* 不同大小的雪花 */
+.snowflake.small {
+  font-size: 0.6em;
+  animation-duration: 8s;
+}
+
+.snowflake.medium {
+  font-size: 1em;
+  animation-duration: 12s;
+}
+
+.snowflake.large {
+  font-size: 1.4em;
+  animation-duration: 15s;
+}
+
+/* 加入飄動動畫 */
+.snowflake.sway {
+  animation: snowfall linear infinite, sway 3s ease-in-out infinite;
+}
+
+
     </style>
 
     <style>
@@ -562,6 +636,15 @@
 
 </head>
 <body>
+    
+  <!-- 下雪特效容器 -->
+  <div id="snow-container"></div>
+  
+  <!-- 原有的內容 -->
+  <audio id="audio"></audio>
+  <div id="background"></div>
+  ...
+
     <audio id="audio"></audio>
     <div id="background"></div>
     <div id="purple-overlay"></div> <!-- 紫色環境光 -->
@@ -923,6 +1006,76 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+    // ❅ 增強版下雪特效 - 可自定義參數
+const snowConfig = {
+  snowflakeCount: 50,        // 初始雪花數量
+  spawnInterval: 200,        // 生成間隔 (毫秒)
+  spawnChance: 0.7,          // 生成機率 (0-1)
+  snowflakes: ['❅', '❆', '✻', '✼', '❄'], // 雪花樣式
+  colors: ['#ffffff', '#e3f2fd', '#f0f8ff', '#e8f5e9'] // 雪花顏色
+};
+
+function createSnowflake() {
+  const snowContainer = document.getElementById('snow-container');
+  if (!snowContainer) return;
+  
+  const snowflake = document.createElement('div');
+  snowflake.classList.add('snowflake');
+  
+  // 隨機選擇雪花符號
+  const symbol = snowConfig.snowflakes[Math.floor(Math.random() * snowConfig.snowflakes.length)];
+  snowflake.innerHTML = symbol;
+  
+  // 隨機顏色
+  const color = snowConfig.colors[Math.floor(Math.random() * snowConfig.colors.length)];
+  snowflake.style.color = color;
+  
+  // 隨機大小
+  const sizes = ['small', 'medium', 'large'];
+  const size = sizes[Math.floor(Math.random() * sizes.length)];
+  snowflake.classList.add(size);
+  
+  // 50% 機率加入飄動效果
+  if (Math.random() > 0.5) {
+    snowflake.classList.add('sway');
+  }
+  
+  // 隨機水平位置
+  snowflake.style.left = Math.random() * 100 + '%';
+  
+  // 隨機動畫延遲
+  snowflake.style.animationDelay = Math.random() * 3 + 's';
+  
+  // 隨機動畫持續時間
+  const duration = Math.random() * 7 + 8;
+  snowflake.style.animationDuration = duration + 's';
+  
+  snowContainer.appendChild(snowflake);
+  
+  setTimeout(() => {
+    snowflake.remove();
+  }, duration * 1000);
+}
+
+function initSnowEffect() {
+  for (let i = 0; i < snowConfig.snowflakeCount; i++) {
+    setTimeout(() => {
+      createSnowflake();
+    }, Math.random() * 3000);
+  }
+  
+  setInterval(() => {
+    if (Math.random() > (1 - snowConfig.spawnChance)) {
+      createSnowflake();
+    }
+  }, snowConfig.spawnInterval);
+}
+
+window.addEventListener('load', () => {
+  console.log('🎄 初始化下雪特效...');
+  initSnowEffect();
+});
 
 
     </script>
