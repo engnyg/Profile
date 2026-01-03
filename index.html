@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+
+    <style>
+        /* ========== 統一字體：Minecraftia（像素字體）========== */
+        :root {
+            --font-mono: 'Minecraftia', 'Courier New', monospace;
+            --font-pixel: 'Minecraftia', 'Courier New', monospace; /* 統一為像素字體 */
+        }
+
+        /* Minecraftia - 像素字體（統一版）*/
+        @font-face {
+            font-family: 'Minecraftia';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('assets/fonts/Minecraftia-Regular.ttf') format('truetype');
+        }
+
+        /* 確保所有文字使用統一字體 */
+        body, * {
+            font-family: 'Minecraftia', 'Courier New', monospace !important;
+        }
+
+        /* 調整字體大小（像素字體通常需要更小的尺寸）*/
+        body {
+            font-size: 18px;
+            line-height: 1.8;
+        }
+
+        h1, h2, h3 {
+            line-height: 1.6;
+        }
+
+        /* 調整按鈕和小元素的字體大小 */
+        button, .button, input, select {
+            font-size: 10px;
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@engnyg</title>
+    <link rel="stylesheet" href="discord-decoration.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+    
+    <style>
+        :root {
+            /* --- 核心色調調整 (依據圖片) --- */
+            
+            /* 卡片背景：高通透的紫粉色玻璃 */
+            --glass-bg: linear-gradient(to right, #d600ff, #f3dbff);
+            
+            /* 邊框：更亮的白色/粉色混合，增加通透感 */
+            --glass-border: 1px solid rgba(255, 200, 255, 0.25);
+            
+            /* 內發光：卡片內部的粉色光暈 */
+            --glass-glow: linear-gradient(to right, rgba(226, 81, 255, 0.3), rgba(238, 204, 255, 0.63));
+
+            /* 文字顏色 */
+            --text-main: #ffffff;
+            --text-sub: rgba(255, 230, 255, 0.85); /* 帶一點粉的白 */
+            
+            /* 強調色 */
+            --accent-pink: #f9a8d4;    /* 社交圖示的粉色 */
+            --accent-purple: #c084fc;  /* 徽章紫色 */
+            --discord-green: #22c55e;  /* Discord 按鈕綠 (保持鮮豔) */
+            
+            /* 字體 */
+            --font-pixel: 'Minecraftia', cursive;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * {
+            cursor: url('assets/cursor.webp') 16 16, auto;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            margin: 0;
+            background-color: #f2a8ff3f; /* 深紫色底 */
+            font-family: var(--font-mono);
+            color: var(--text-main);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1200px;
+        }
+
+        /* --- 背景層 --- */
+        #background {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('assets/background.jpg') no-repeat center center/cover;
+            z-index: -3;
+        }
+
+      
+
+        /* 點擊進入畫面 */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20, 5, 30, 0.9);
+            z-index: 9999;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.6s ease;
+        }
+        
+        .click-text {
+            font-family: var(--font-pixel);
+            font-size: 20px;
+            color: #fff;
+            text-shadow: 0 0 20px #d8b4fe, 0 0 40px #d8b4fe;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% {opacity:0.5; transform: scale(0.98);} 50% {opacity:1; transform: scale(1);} 100% {opacity:0.5; transform: scale(0.98);} }
+
+        /* --- 主容器 (3D) --- */
+        #tilt-wrapper {
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+            width: 100%;
+            max-width: 720px; /* 稍微加寬 */
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            opacity: 0;
+            transform: scale(0.9) translateY(30px);
+        }
+        
+        #tilt-wrapper.show {
+            opacity: 1;
+            animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes popIn { to { transform: scale(1) translateY(0); } }
+
+        /* --- 玻璃卡片 (樣式核心) --- */
+        .glass-card {
+            background: var(--glass-bg);
+            background-image: var(--glass-glow);
+            border: var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(4px); /* 降低模糊度以增加通透感 */
+            -webkit-backdrop-filter: blur(12px);
+            padding: 28px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            position: relative;
+            transform: translateZ(20px);
+        }
+
+        /* --- 個人資料區 --- */
+        .header-row {
+            display: flex; align-items: center; gap: 25px;
+            margin-bottom: 15px;
+        }
+
+        .avatar-container {
+            position: relative; width: 95px; height: 95px;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid rgba(255,255,255,0.35);
+            box-shadow: 0 0 20px rgba(200, 100, 255, 0.5);
+        }
+
+        .user-info { display: flex; flex-direction: column; gap: 8px; }
+
+        .username {
+            font-family: var(--font-pixel);
+            font-size: 26px;
+            display: flex; align-items: center; gap: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .badge { font-size: 18px; color: var(--accent-purple); filter: drop-shadow(0 0 5px var(--accent-purple)); }
+
+        .bio {
+            font-size: 14px; color: var(--text-sub);
+            font-weight: bold; letter-spacing: 0.5px;
+        }
+        
+        .join-date { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+        /* --- Discord 區塊 --- */
+        .discord-block {
+            background: #f2a8ff3f; /* 深紫色底 */
+            border-radius: 16px;
+            padding: 10px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .server-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, #5865F2, #4752C4);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .server-icon img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
+
+        .join-btn {
+            background: var(--discord-green);
+            color: white; border: none;
+            font-family: var(--font-pixel); font-size: 15px;
+            padding: 10px 20px; border-radius: 8px;
+            text-decoration: none; transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+        }
+        .join-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6); }
+
+        /* --- 社交圖標 (粉色系) --- */
+        .social-icons {
+            display: flex; justify-content: center; gap: 10px;
+            margin-top: 18px;
+        }
+        .social-icon {
+            width: 45px; height: 45px; border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent-pink); font-size: 22px;
+            text-decoration: none; transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .social-icon:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 0 15px var(--accent-pink);
+            color: #fff;
+        }
+
+        .location {
+            position: absolute; bottom: 20px; left: 25px;
+            font-size: 12px; font-weight: bold;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .social-icon svg {
+        width: 24px;
+        height: 24px;
+        fill: currentColor;  /* 繼承父元素顏色 */
+        transition: 0.3s;
+        }
+
+        .social-icon:hover svg {
+        fill: #fff;  /* hover 時變白色 */
+        transform: scale(1.1);
+        }
+
+        /* --- 音樂播放器 (下方長條) --- */
+        .music-player {
+            background: linear-gradient(90deg, rgba(226, 81, 255, 0.3), rgba(243, 219, 255, 0.6));
+            padding: 15px 25px;
+            border-radius: 20px;
+            display: flex; align-items: center; gap: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .album-art {
+            width: 55px; height: 55px; border-radius: 10px;
+            object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .track-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .track-name { font-family: var(--font-pixel); font-size: 12px; color: white; letter-spacing: 0.5px; }
+        
+        .progress-bar {
+            width: 100%; height: 4px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 2px; cursor: pointer;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: #fff; /* 白色進度條 */
+            box-shadow: 0 0 10px #fff;
+            transition: width 0.1s linear;
+        }
+        
+        .time-info {
+            display: flex; justify-content: space-between; 
+            font-size: 11px; font-family: var(--font-mono); 
+            color: rgba(255,255,255,0.8);
+        }
+
+        .controls {
+    display: flex;
+    gap: 15px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.control-icon {
+    cursor: pointer;
+    transition: 0.2s;
+    width: 24px;
+    height: 24px;
+    fill: rgb(255, 255, 255);  /* 改用 fill 控制顏色 */
+}
+
+.control-icon:hover {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 10px rgb(255, 255, 255));
+}
+
+/* 播放按鈕特別樣式 */
+#play {
+    width: 28px;
+    height: 28px;
+}
+
+
+
+        /* 手機 RWD */
+        @media (max-width: 768px) {
+            #tilt-wrapper { transform: none !important; padding: 10px; }
+            .header-row { flex-direction: column; text-align: center; }
+            .music-player { flex-direction: column; padding: 20px; }
+            .track-info { width: 100%; text-align: center; margin: 10px 0; }
+        }
+
+    </style>
+
+    <style>
+        /* ========== 字體發光效果配置 ========== */
+
+        /* 本地字体定义 */
+        @font-face {
+            font-family: 'Minecraftia';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('assets/fonts/Minecraftia-Regular.ttf') format('truetype');
+        }
+
+        /* 全局高清 + 發光設置 */
+        body, * {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Minecraftia', 'Courier New', monospace;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* 高清文字渲染 */
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* 主体字体優化 + 微弱發光 */
+        body {
+            font-size: 14px;
+            line-height: 1.6;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+            text-shadow: 
+                0 0 10px rgba(200, 100, 255, 0.3),
+                0 0 20px rgba(200, 100, 255, 0.15);
+            -webkit-text-stroke: 0.5px rgba(255, 255, 255, 0.1);
+        }
+
+        /* 標題發光 - 強烈 */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            line-height: 1.4;
+            text-shadow: 
+                0 0 10px rgba(255, 200, 255, 0.5),
+                0 0 20px rgba(200, 100, 255, 0.4),
+                0 0 30px rgba(150, 50, 255, 0.2);
+        }
+
+        /* 用戶名發光 - 最強 */
+        .username {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-shadow: 
+                0 0 8px rgba(255, 255, 255, 0.8),
+                0 0 16px rgba(200, 100, 255, 0.6),
+                0 0 24px rgba(150, 50, 255, 0.4),
+                0 0 32px rgba(100, 0, 255, 0.2);
+            filter: drop-shadow(0 0 8px rgba(200, 100, 255, 0.5));
+        }
+
+        /* 生物信息發光 */
+        .bio {
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-shadow: 
+                0 0 8px rgba(200, 150, 255, 0.4),
+                0 0 16px rgba(150, 100, 255, 0.2);
+        }
+
+        /* 加入日期 - 輕微發光 */
+        .join-date {
+            text-shadow: 0 0 6px rgba(150, 100, 255, 0.3);
+        }
+
+        /* 曲目名稱發光 - 像素字體風格 */
+        .track-name {
+            font-family: 'Minecraftia', monospace;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            text-rendering: optimizeLegibility;
+            text-shadow: 
+                0 0 10px rgba(255, 200, 255, 0.5),
+                0 0 20px rgba(200, 100, 255, 0.3);
+        }
+
+        /* 按鈕和連結發光 */
+        button, a, .button {
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            transition: text-shadow 0.3s ease;
+        }
+
+        /* 按鈕懸停發光加強 */
+        button:hover, a:hover, .button:hover {
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.6),
+                0 0 20px rgba(200, 100, 255, 0.5);
+        }
+
+        /* 小字體 */
+        small, .small-text {
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            text-shadow: 0 0 4px rgba(150, 100, 255, 0.2);
+        }
+
+        /* 輸入框 */
+        input, textarea {
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        /* 高DPI屏幕優化 */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            body {
+                font-size: 14px;
+                letter-spacing: 0.3px;
+                font-weight: 500;
+            }
+
+            h1, h2, h3 {
+                font-weight: 600;
+                text-shadow: 
+                    0 0 12px rgba(255, 200, 255, 0.6),
+                    0 0 24px rgba(200, 100, 255, 0.4),
+                    0 0 36px rgba(150, 50, 255, 0.2);
+            }
+
+            .username {
+                text-shadow: 
+                    0 0 10px rgba(255, 255, 255, 0.9),
+                    0 0 20px rgba(200, 100, 255, 0.7),
+                    0 0 30px rgba(150, 50, 255, 0.5),
+                    0 0 40px rgba(100, 0, 255, 0.3);
+            }
+        }
+
+        /* 移動設備優化 */
+        @media (max-width: 768px) {
+            body {
+                font-size: 13px;
+                line-height: 1.6;
+                text-shadow: 
+                    0 0 8px rgba(200, 100, 255, 0.25),
+                    0 0 16px rgba(200, 100, 255, 0.1);
+            }
+
+            .username {
+                text-shadow: 
+                    0 0 6px rgba(255, 255, 255, 0.6),
+                    0 0 12px rgba(200, 100, 255, 0.4),
+                    0 0 18px rgba(150, 50, 255, 0.2);
+            }
+        }
+
+        /* 社交圖標文字發光 */
+        .social-icon {
+            text-shadow: 0 0 8px rgba(255, 168, 212, 0.4);
+            transition: text-shadow 0.3s ease;
+        }
+
+        .social-icon:hover {
+            text-shadow: 
+                0 0 10px rgba(255, 168, 212, 0.8),
+                0 0 20px rgba(200, 100, 255, 0.6);
+        }
+
+        /* 徽章發光 */
+        .badge {
+            text-shadow: 
+                0 0 8px rgba(192, 132, 252, 0.6),
+                0 0 16px rgba(168, 85, 247, 0.4);
+        }
+
+        /* 位置信息發光 */
+        .location {
+            text-shadow: 0 0 6px rgba(150, 100, 255, 0.3);
+        }
+    </style>
+
+</head>
+<body>
+    <audio id="audio"></audio>
+    <div id="background"></div>
+    <div id="purple-overlay"></div> <!-- 紫色環境光 -->
+
+    <div id="overlay">
+        <div class="click-text">[ CLICK TO ENTER ]</div>
+    </div>
+
+    <div id="tilt-wrapper">
+        
+        <!-- 上方：個人資料 -->
+        <div class="glass-card">
+            <div class="header-row">
+                <div class="avatar-container">
+    <!-- 头像 -->
+    <img src="assets/avatar.gif" class="avatar" alt="Avatar">
+    
+    <!-- Discord 装饰（新增） -->
+    <img src="assets/discord-decoration.png" class="avatar-decoration" alt="装饰">
+                </div>
+
+                <div class="user-info">
+                    <div class="username">engnyg <i class="fas fa-gem badge"></i></div>
+                    <div class="bio">WUFAI 電子 <i class="fas fa-ghost" style="font-size:12px;"></i></div>
+                    <div class="join-date">Joined 9 months ago</div>
+                </div>
+            </div>
+
+            <div class="discord-block" id="discordBlock">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="server-icon" style="width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg, #5865F2, #4752C4); display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+                        <img id="discordServerIcon" src="assets/server.png" style="width:100%; height:100%; object-fit:cover; position:absolute;" onerror="this.style.display='none'; document.getElementById('discordServerFallback').style.display='flex';">
+                        <span id="discordServerFallback" style="display:none; font-weight:bold; color:white; font-size:18px; position:absolute;">LY</span>
+                    </div>
+                    <div>
+                        <h4 style="margin:0; font-size:14px; color:white;"><span id="discordServerName">LY商城</span></h4>
+                        <div style="font-size:11px; color:#d8b4fe; margin-top:2px;">
+                            <span style="color:#2ecc71;">●</span> <span id="onlineCount">55</span> Online • <span id="totalCount">161</span> Members
+                        </div>
+                    </div>
+                </div>
+                <a id="discordJoinBtn" href="https://discord.gg/PpMPU5Dgv7" target="_blank" class="join-btn">Join</a>
+            </div>
+
+            <div class="social-icons">
+    <!-- TikTok SVG -->
+    <a href="https://www.tiktok.com/@sanzawa1" class="social-icon" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+            <path d="M448 209.9a210.1 210.1 0 0 1 -122.8-39.3v178.8A162.6 162.6 0 1 1 185 188.3v89.6a74.7 74.7 0 1 0 52.2 71.2V0h88a121.2 121.2 0 0 0 1.9 22.2 122.2 122.2 0 0 0 21.8 55.8 123 123 0 0 0 40.8 37.8 122.8 122.8 0 0 0 57.5 14.1z"/>
+        </svg>
+    </a>
+    
+    <!-- Instagram SVG -->
+    <a href="https://www.instagram.com/lxy._.0105" class="social-icon" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+            <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/>
+        </svg>
+    </a>
+    <!-- Steam SVG -->
+    <a href="https://steamcommunity.com/id/engnyg" class="social-icon" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
+            <path d="M496 256c0 137-111.2 248-248.4 248-113.8 0-209.6-76.3-239-180.4l95.2 39.3c6.4 32.1 34.9 56.4 68.9 56.4 39.2 0 71.9-32.4 70.2-73.5l84.5-60.2c52.1 1.3 95.8-40.9 95.8-93.5 0-51.6-42-93.5-93.7-93.5s-93.7 42-93.7 93.5v1.2L176.6 279c-15.5-.9-30.7 3.4-43.5 12.1L0 236.1C10.2 108.4 117.1 8 247.6 8 384.8 8 496 119 496 256zM155.7 384.3l-30.5-12.6a52.8 52.8 0 0 0 27.2 25.8c26.9 11.2 57.8-1.6 69-28.4 5.4-13 5.5-27.3 .1-40.3-5.4-13-15.5-23.2-28.5-28.6-12.9-5.4-26.7-5.2-38.9-.6l31.5 13c19.8 8.2 29.2 30.9 20.9 50.7-8.3 19.9-31 29.2-50.8 21zm173.8-129.9c-34.4 0-62.4-28-62.4-62.3s28-62.3 62.4-62.3 62.4 28 62.4 62.3-27.9 62.3-62.4 62.3zm.1-15.6c25.9 0 46.9-21 46.9-46.8 0-25.9-21-46.8-46.9-46.8s-46.9 21-46.9 46.8c.1 25.8 21.1 46.8 46.9 46.8z"/>
+        </svg>
+    </a>
+</div>
+
+
+
+
+
+            <div class="location"><i class="fas fa-map-marker-alt"></i> Taiwan</div>
+        </div>
+
+        <!-- 下方：音樂播放器 -->
+        <div class="glass-card music-player">
+    <img src="" class="album-art" id="album-art">
+    
+    <div class="track-info">
+        <div class="track-name" id="track-name">Song Name</div>
+        
+        <!-- 把兩個時間放在一起 -->
+        <div class="time-info">
+            <span id="curr-time">0:00</span>
+            <span id="dur-time">0:00</span>
+        </div>
+        
+        <div class="progress-bar" id="progress-container">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+    <!-- 上一首 -->
+    <svg class="control-icon" id="prev" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+        <path d="M267.5 440.6c9.5 7.9 22.8 9.7 34.1 4.4s18.4-16.6 18.4-29V96c0-12.4-7.2-23.7-18.4-29s-24.5-3.6-34.1 4.4l-192 160L64 241V96c0-17.7-14.3-32-32-32S0 78.3 0 96V416c0 17.7 14.3 32 32 32s32-14.3 32-32V271l11.5 9.6 192 160z"/>
+    </svg>
+    
+    <!-- 播放 -->
+    <svg class="control-icon" id="play" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+        <path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/>
+    </svg>
+    
+    <!-- 下一首 -->
+    <svg class="control-icon" id="next" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+        <path d="M52.5 440.6c-9.5 7.9-22.8 9.7-34.1 4.4S0 428.4 0 416V96C0 83.6 7.2 72.3 18.4 67s24.5-3.6 34.1 4.4l192 160L256 241V96c0-17.7 14.3-32 32-32s32 14.3 32 32V416c0 17.7-14.3 32-32 32s-32-14.3-32-32V271l-11.5 9.6-192 160z"/>
+    </svg>
+    <!-- 在 .controls div 中添加 -->
+<div class="controls">
+  <!-- 現有的播放控制按鈕 -->
+  <svg class="control-icon" id="prev">...</svg>
+  <svg class="control-icon" id="play">...</svg>
+  <svg class="control-icon" id="next">...</svg>
+  
+  <!-- 新增:音量控制 -->
+  <div class="volume-control" style="display: flex; align-items: center; gap: 10px; margin-left: 15px;">
+    <svg class="control-icon" id="volume-icon" style="cursor: pointer; width: 20px; height: 20px;">
+      <path d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97z"/>
+    </svg>
+    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" 
+           style="width: 80px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; cursor: pointer;">
+  </div>
+</div>
+
+</div>
+
+</div>
+
+
+    <script>
+        /* --- 歌曲清單 --- */
+        const songs = [
+            { title: "Call of The Night Daten", src: "assets/song1.mp3", cover: "assets/cover1.jpg" },
+            { title: "Bad Apple!!!", src: "assets/song2.mp3", cover: "assets/cover2.jpg" },
+            { title: "u.n. owen was her orchestra", src: "assets/song3.mp3", cover: "assets/cover3.jpg" },
+            { title: "Flowering night", src: "assets/song4.mp3", cover: "assets/cover4.jpg" }
+        ];
+        /* ---------------- */
+
+        const audio = document.getElementById('audio');
+        const overlay = document.getElementById('overlay');
+        const wrapper = document.getElementById('tilt-wrapper');
+        const playBtn = document.getElementById('play');
+        const cover = document.getElementById('album-art');
+        let songIndex = 0;
+
+        loadSong(songs[songIndex]);
+        audio.volume = 0.5;
+
+        // 替換現有的 3D 傾斜代碼
+const glassCards = document.querySelectorAll('.glass-card');
+
+glassCards.forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    if (window.innerWidth <= 768) return;
+    
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * 10;
+    const rotateY = ((x - centerX) / centerX) * -10;
+    
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+    card.style.transition = 'transform 0.1s ease';
+  });
+  
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+    card.style.transition = 'transform 0.5s ease';
+  });
+});
+
+
+        // 播放器邏輯
+        function loadSong(song) {
+            document.getElementById('track-name').innerText = song.title;
+            audio.src = song.src;
+            cover.src = song.cover;
+            cover.onerror = () => cover.src = 'https://via.placeholder.com/55/333/fff?text=♪';
+        }
+
+        function togglePlay() {
+    const playBtn = document.getElementById('play');
+    
+    if (audio.paused) {
+        audio.play();
+        // 暫停圖標
+        playBtn.innerHTML = '<path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/>';
+    } else {
+        audio.pause();
+        // 播放圖標
+        playBtn.innerHTML = '<path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/>';
+    }
+}
+
+
+        playBtn.addEventListener('click', togglePlay);
+        document.getElementById('prev').addEventListener('click', () => {
+            songIndex = (songIndex - 1 + songs.length) % songs.length;
+            loadSong(songs[songIndex]);
+            togglePlay();
+        });
+        document.getElementById('next').addEventListener('click', () => {
+            songIndex = (songIndex + 1) % songs.length;
+            loadSong(songs[songIndex]);
+            togglePlay();
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+            document.getElementById('curr-time').innerText = formatTime(audio.currentTime);
+            document.getElementById('dur-time').innerText = formatTime(audio.duration || 0);
+        });
+
+        document.getElementById('progress-container').addEventListener('click', (e) => {
+            const width = e.target.closest('#progress-container').clientWidth;
+            audio.currentTime = (e.offsetX / width) * audio.duration;
+        });
+
+        function formatTime(s) {
+            const min = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${min}:${sec < 10 ? '0'+sec : sec}`;
+        }
+
+        // 點擊進入
+        overlay.addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                wrapper.classList.add('show');
+                audio.play().then(() => playBtn.classList.replace('fa-play', 'fa-pause')).catch(console.error);
+            }, 500);
+        });
+        // 音量控制功能
+const volumeIcon = document.getElementById('volume-icon');
+const volumeSlider = document.getElementById('volume-slider');
+let isMuted = false;
+
+// 音量滑桿控制
+volumeSlider.addEventListener('input', (e) => {
+  audio.volume = e.target.value;
+  updateVolumeIcon(e.target.value);
+  if (isMuted && e.target.value > 0) {
+    isMuted = false;
+  }
+});
+
+// 靜音切換
+volumeIcon.addEventListener('click', () => {
+  isMuted = !isMuted;
+  audio.muted = isMuted;
+  
+  if (isMuted) {
+    volumeIcon.innerHTML = `<path d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zM461.64 256L509.31 208.33c6.25-6.25 6.25-16.38 0-22.63l-22.63-22.63c-6.25-6.25-16.38-6.25-22.63 0L416.36 210.75 368.69 163.07c-6.25-6.25-16.38-6.25-22.63 0l-22.63 22.63c-6.25 6.25-6.25 16.38 0 22.63l47.69 47.69-47.69 47.69c-6.25 6.25-6.25 16.38 0 22.63l22.63 22.63c6.25 6.25 16.38 6.25 22.63 0l47.69-47.69 47.69 47.69c6.25 6.25 16.38 6.25 22.63 0l22.63-22.63c6.25-6.25 6.25-16.38 0-22.63L461.64 256z"/>`;
+  } else {
+    volumeIcon.innerHTML = `<path d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97z"/>`;
+  }
+});
+
+function updateVolumeIcon(volume) {
+  if (volume == 0) {
+    volumeIcon.innerHTML = `<path d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97zM461.64 256L509.31 208.33c6.25-6.25 6.25-16.38 0-22.63l-22.63-22.63c-6.25-6.25-16.38-6.25-22.63 0L416.36 210.75 368.69 163.07c-6.25-6.25-16.38-6.25-22.63 0l-22.63 22.63c-6.25 6.25-6.25 16.38 0 22.63l47.69 47.69-47.69 47.69c-6.25 6.25-6.25 16.38 0 22.63l22.63 22.63c6.25 6.25 16.38 6.25 22.63 0l47.69-47.69 47.69 47.69c6.25 6.25 16.38 6.25 22.63 0l22.63-22.63c6.25-6.25 6.25-16.38 0-22.63L461.64 256z"/>`;
+  } else {
+    volumeIcon.innerHTML = `<path d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97z"/>`;
+  }
+}
+
+    // 循環打字機效果
+function createLoopingTypewriter(element, texts, typingSpeed = 100, deletingSpeed = 50, pauseAfterComplete = 2000, pauseBeforeDelete = 1500) {
+  let textIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let currentText = '';
+  
+  function type() {
+    const fullText = texts[textIndex];
+    
+    if (isDeleting) {
+      // 刪除文字
+      currentText = fullText.substring(0, charIndex - 1);
+      charIndex--;
+    } else {
+      // 打字
+      currentText = fullText.substring(0, charIndex + 1);
+      charIndex++;
+    }
+    
+    // 顯示文字和光標
+    element.innerHTML = currentText + '<span class="cursor">|</span>';
+    
+    let timeout = isDeleting ? deletingSpeed : typingSpeed;
+    
+    // 如果打完了
+    if (!isDeleting && charIndex === fullText.length) {
+      timeout = pauseBeforeDelete;
+      isDeleting = true;
+    }
+    // 如果刪完了
+    else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      textIndex = (textIndex + 1) % texts.length; // 循環到下一個文字
+      timeout = pauseAfterComplete;
+    }
+    
+    setTimeout(type, timeout);
+  }
+  
+  type();
+}
+
+// 使用範例 - 在頁面加載完成後啟動
+overlay.addEventListener('click', () => {
+  overlay.style.opacity = 0;
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    wrapper.classList.add('show');
+    audio.play().catch(console.error);
+    
+    // 用戶名打字機效果 - 循環多個文字
+    const usernameElement = document.querySelector('.username');
+    const usernameTexts = [
+      'engnyg'
+    ];
+    
+    // 個人簡介打字機效果 - 循環多個簡介
+    const bioElement = document.querySelector('.bio');
+    const bioTexts = [
+      'WUFAI 電子 👻'
+    ];
+    
+    // 啟動循環打字機
+    createLoopingTypewriter(usernameElement, usernameTexts, 150, 75, 2000, 1500);
+    
+    // 延遲啟動個人簡介打字機,讓效果更自然
+    setTimeout(() => {
+      createLoopingTypewriter(bioElement, bioTexts, 100, 50, 2000, 1500);
+    }, 500);
+  }, 500);
+});
+
+// 添加光標閃爍動畫的樣式
+const style = document.createElement('style');
+style.textContent = `
+  .cursor {
+    animation: blink 1s infinite;
+    color: var(--accent-purple);
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
+
+
+    </script>
+
+    <!-- ========== 特效腳本 ========== -->
+    <!-- 貓咪跟隨特效 -->
+    <script src="assets/oneko.js"></script>
+
+    
+
+    <!-- 特效初始化 -->
+    <script>
+        // 初始化特效
+        window.addEventListener('load', () => {
+            console.log('🎨 正在初始化特效...');
+
+            // 檢測設備類型
+            const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+
+            if (!isTouchDevice) {
+                // 桌面設備：啟用滑鼠軌跡特效
+                if (typeof cursoreffects !== 'undefined') {
+                    try {
+                        new cursoreffects.rainbowCursor({
+                            length: 3,
+                            colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'],
+                            size: 3
+                        });
+                        console.log('✅ Rainbow cursor effect 已初始化');
+                    } catch (err) {
+                        console.error('❌ Rainbow cursor effect 初始化失敗:', err);
+                    }
+                } else {
+                    console.warn('⚠️ cursor-effects.js 未載入');
+                }
+            } else {
+                console.log('📱 觸控設備檢測到，已跳過滑鼠特效');
+            }
+
+            // 貓咪特效會自動初始化
+            console.log('🐱 Oneko.js 已載入（貓咪特效）');
+        });
+    </script>
+
+
+    <!-- Discord 實時同步腳本 -->
+    <script>
+        const DISCORD_INVITE_CODE = 'PpMPU5Dgv7';
+        const DISCORD_API_URL = `https://discord.com/api/v9/invites/${DISCORD_INVITE_CODE}?with_counts=true`;
+        const UPDATE_INTERVAL = 30000;
+
+        const discordElements = {
+            block: document.getElementById('discordBlock'),
+            onlineCount: document.getElementById('onlineCount'),
+            totalCount: document.getElementById('totalCount'),
+            serverName: document.getElementById('discordServerName'),
+            serverIcon: document.getElementById('discordServerIcon'),
+            serverFallback: document.getElementById('discordServerFallback'),
+            joinBtn: document.getElementById('discordJoinBtn')
+        };
+
+        async function syncDiscordData() {
+            try {
+                if (discordElements.block) discordElements.block.style.opacity = '0.7';
+
+                const response = await fetch(DISCORD_API_URL);
+                if (!response.ok) throw new Error(`API 錯誤: ${response.status}`);
+
+                const data = await response.json();
+                const totalMembers = data.approximate_member_count || 0;
+                const onlineMembers = data.approximate_presence_count || 0;
+                const serverName = data.guild?.name || 'Discord 伺服器';
+                const serverId = data.guild?.id;
+                const serverIconHash = data.guild?.icon;
+
+                if (discordElements.totalCount) {
+                    discordElements.totalCount.textContent = totalMembers.toLocaleString('zh-TW');
+                }
+                if (discordElements.onlineCount) {
+                    discordElements.onlineCount.textContent = onlineMembers.toLocaleString('zh-TW');
+                }
+                if (discordElements.serverName) {
+                    discordElements.serverName.textContent = serverName;
+                }
+                if (discordElements.joinBtn) {
+                    discordElements.joinBtn.href = `https://discord.gg/${DISCORD_INVITE_CODE}`;
+                }
+
+                if (serverId && serverIconHash && discordElements.serverIcon) {
+                    const iconUrl = `https://cdn.discordapp.com/icons/${serverId}/${serverIconHash}.png?size=128`;
+                    discordElements.serverIcon.src = iconUrl;
+                    discordElements.serverIcon.style.display = 'block';
+                    if (discordElements.serverFallback) {
+                        discordElements.serverFallback.style.display = 'none';
+                    }
+                }
+
+                console.log('✅ Discord 數據已同步:', {
+                    totalMembers, onlineMembers, serverName,
+                    timestamp: new Date().toLocaleTimeString('zh-TW')
+                });
+
+                if (discordElements.block) discordElements.block.style.opacity = '1';
+            } catch (error) {
+                console.error('❌ Discord 同步失敗:', error.message);
+                if (discordElements.block) discordElements.block.style.opacity = '1';
+                setTimeout(syncDiscordData, 10000);
+            }
+        }
+
+        function initializeDiscordSync() {
+            console.log('🔄 初始化 Discord 實時同步...');
+            syncDiscordData();
+            setInterval(syncDiscordData, UPDATE_INTERVAL);
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    console.log('🔄 頁面重新獲得焦點，刷新 Discord 數據...');
+                    syncDiscordData();
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDiscordSync);
+        } else {
+            initializeDiscordSync();
+        }
+    </script>
+
+</body>
+</html>
