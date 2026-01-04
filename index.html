@@ -383,6 +383,57 @@
   overflow: hidden;
 }
 
+/* 音量滑桿自定義樣式 */
+#volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+}
+
+/* 滑桿軌道 - Chrome/Safari */
+#volume-slider::-webkit-slider-track {
+  width: 100%;
+  height: 4px;
+  background: rgb(205, 78, 205, 0.8); /* 青色 - 改這裡的顏色 */
+  border-radius: 2px;
+}
+
+/* 滑桿按鈕 - Chrome/Safari */
+#volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(205, 78, 205, 0.8);
+}
+
+/* 滑桿軌道 - Firefox */
+#volume-slider::-moz-range-track {
+  height: 4px;
+  background: rgb(205, 78, 205, 0.8); /* 青色 - 改這裡的顏色 */
+  border-radius: 2px;
+}
+
+/* 滑桿按鈕 - Firefox */
+#volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(205, 78, 205, 0.8);
+}
+
+
 .snowflake {
   position: absolute;
   top: -10px;
@@ -764,7 +815,7 @@
       <path d="M215.03 71.05L126.06 160H24c-13.26 0-24 10.74-24 24v144c0 13.25 10.74 24 24 24h102.06l88.97 88.95c15.03 15.03 40.97 4.47 40.97-16.97V88.02c0-21.46-25.96-31.98-40.97-16.97z"/>
     </svg>
     <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" 
-           style="width: 80px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; cursor: pointer;">
+           
   </div>
 </div>
 
