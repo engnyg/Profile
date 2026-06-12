@@ -18,9 +18,9 @@
             src: url('assets/fonts/Minecraftia-Regular.ttf') format('truetype');
         }
 
-        /* 確保所有文字使用統一字體 */
+        /* 確保所有文字使用統一字體（中文 fallback 到微軟正黑體）*/
         body, * {
-            font-family: 'Minecraftia', 'Courier New', monospace !important;
+            font-family: 'Minecraftia', 'Courier New', 'Microsoft JhengHei', monospace !important;
         }
 
         /* 調整字體大小（像素字體通常需要更小的尺寸）*/
@@ -37,11 +37,38 @@
         button, .button, input, select {
             font-size: 10px;
         }
+
+        /* 中英混排基線修正：Minecraftia 的字形畫在基線上方 0.625em（A 的底部 = +960/1536em），
+           中文 fallback 字體貼在基線 0 上，同行會看起來下沉，這裡把中文抬到同一視覺線 */
+        .cjk {
+            position: relative;
+            top: -0.7em;
+        }
     </style>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>engnyg</title>
+    <link rel="icon" id="favicon" href="assets/avatar.gif" type="image/gif">
+    <script>
+        // 把頭像裁成圓形再設為 favicon（favicon 無法用 CSS 修圓）
+        (function() {
+            const img = new Image();
+            img.src = 'assets/avatar.gif';
+            img.onload = () => {
+                const size = 64;
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+                ctx.beginPath();
+                ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(img, 0, 0, size, size);
+                document.getElementById('favicon').href = canvas.toDataURL('image/png');
+            };
+        })();
+    </script>
     <link rel="stylesheet" href="discord-decoration.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
@@ -74,7 +101,7 @@
         }
 
         * {
-            cursor: url('assets/cursor.webp') 16 16, auto;
+            cursor: url('assets/cursor.webp') 0 0, auto;
             box-sizing: border-box;
             user-select: none;
             -webkit-font-smoothing: antialiased;
@@ -112,7 +139,7 @@
             z-index: 9999;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
-            cursor: pointer;
+            cursor: url('assets/cursor.webp') 0 0, pointer;
             transition: opacity 0.6s ease;
         }
         
@@ -132,6 +159,7 @@
   transition: transform 0.1s;
   width: 100%;
   max-width: 700px;
+  zoom: 1.3; /* 卡片+播放器整體等比放大（zoom 走排版渲染，文字不會像 transform: scale 那樣糊掉） */
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -142,7 +170,13 @@
 
 #tilt-wrapper.show {
   opacity: 1;
+  transform: none;
   animation: popIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* 視窗較窄時取消放大，避免 700px × 1.3 = 910px 超出畫面被裁切 */
+@media (max-width: 1000px) {
+  #tilt-wrapper { zoom: 1; }
 }
 
 /* 移除個別卡片的 3D 變換 */
@@ -240,7 +274,7 @@
         }
         .social-icon:hover {
             background: rgba(255,255,255,0.25);
-            transform: translateY(-4px);
+            transform: scale(1.1);
             box-shadow: 0 0 15px var(--accent-pink);
             color: #fff;
         }
@@ -254,13 +288,13 @@
         .social-icon svg {
         width: 24px;
         height: 24px;
-        fill: currentColor;  /* 繼承父元素顏色 */
+        fill: currentColor;
         transition: 0.3s;
+        pointer-events: none;
         }
 
         .social-icon:hover svg {
-        fill: #fff;  /* hover 時變白色 */
-        transform: scale(1.1);
+        fill: #fff;
         }
 
         /* --- 音樂播放器 (下方長條) --- */
@@ -283,7 +317,7 @@
         .progress-bar {
             width: 100%; height: 4px;
             background: rgba(255,255,255,0.15);
-            border-radius: 2px; cursor: pointer;
+            border-radius: 2px; cursor: url('assets/cursor.webp') 0 0, pointer;
             overflow: hidden;
         }
         .progress-fill {
@@ -310,7 +344,7 @@
 }
 
 .control-icon {
-    cursor: pointer;
+    cursor: url('assets/cursor.webp') 0 0, pointer;
     transition: 0.2s;
     width: 24px;
     height: 24px;
@@ -358,7 +392,7 @@
   height: 4px;
   background: rgba(255, 255, 255, 0.3);
   border-radius: 2px;
-  cursor: pointer;
+  cursor: url('assets/cursor.webp') 0 0, pointer;
   outline: none;
 }
 
@@ -378,7 +412,7 @@
   height: 12px;
   background: white;
   border-radius: 50%;
-  cursor: pointer;
+  cursor: url('assets/cursor.webp') 0 0, pointer;
   box-shadow: 0 0 8px rgba(205, 78, 205, 0.8);
 }
 
@@ -396,7 +430,7 @@
   background: white;
   border: none;
   border-radius: 50%;
-  cursor: pointer;
+  cursor: url('assets/cursor.webp') 0 0, pointer;
   box-shadow: 0 0 8px rgba(205, 78, 205, 0.8);
 }
 
@@ -630,13 +664,15 @@
         /* 社交圖標文字發光 */
         .social-icon {
             text-shadow: 0 0 8px rgba(255, 168, 212, 0.4);
-            transition: text-shadow 0.3s ease;
+            transition: text-shadow 0.3s ease, transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
         }
 
         .social-icon:hover {
-            text-shadow: 
+            text-shadow:
                 0 0 10px rgba(255, 168, 212, 0.8),
                 0 0 20px rgba(200, 100, 255, 0.6);
+            z-index: 1;
         }
 
         /* 徽章發光 */
@@ -686,7 +722,7 @@
 
                 <div class="user-info">
                     <div class="username">engnyg <i class="fas fa-gem badge"></i></div>
-                    <div class="bio">WUFAI 電子 <i class="fas fa-ghost" style="font-size:12px;"></i></div>
+                    <div class="bio">WUFAI <span class="cjk">電子</span> <i class="fas fa-ghost" style="font-size:12px;"></i></div>
                     <div class="join-date">2009/01/05</div>
                 </div>
             </div>
@@ -698,7 +734,7 @@
                         <span id="discordServerFallback" style="display:none; font-weight:bold; color:white; font-size:18px; position:absolute;">LY</span>
                     </div>
                     <div>
-                        <h4 style="margin:0; font-size:14px; color:white;"><span id="discordServerName">LY商城</span></h4>
+                        <h4 style="margin:0; font-size:14px; color:white;"><span id="discordServerName">LY<span class="cjk">商城</span></span></h4>
                         <div style="font-size:11px; color:#d8b4fe; margin-top:2px;">
                             <span style="color:#2ecc71;">●</span> <span id="onlineCount">55</span> Online • <span id="totalCount">161</span> Members
                         </div>
@@ -708,6 +744,12 @@
             </div>
 
             <div class="social-icons">
+    <!-- GitHub SVG -->
+    <a href="https://github.com/engnyg" class="social-icon" target="_blank">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512">
+            <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 390.9 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/>
+        </svg>
+    </a>
     <!-- TikTok SVG -->
     <a href="https://www.tiktok.com/@sanzawa1" class="social-icon" target="_blank">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
@@ -808,6 +850,11 @@
         const cover = document.getElementById('album-art');
         let songIndex = 0;
 
+        // 把中文/全形字/emoji 包進 .cjk span，修正與 Minecraftia 的基線偏移
+        function wrapCJK(text) {
+            return text.replace(/[\u2600-\u27BF\u3000-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\uFE00-\uFE0F\uFF00-\uFFEF\u{1F000}-\u{1FAFF}]+/gu, '<span class="cjk">$&</span>');
+        }
+
         loadSong(songs[songIndex]);
         audio.volume = 0.5;
 
@@ -829,12 +876,12 @@ if (wrapper) {
     const rotateY = ((x - centerX) / centerX) * -10;
     
     // 應用到整個容器
-    wrapper.style.transform = `perspective(1500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+    wrapper.style.transform = `perspective(1500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     wrapper.style.transition = 'transform 0.1s ease';
   });
   
   wrapper.addEventListener('mouseleave', () => {
-    wrapper.style.transform = 'perspective(1500px) rotateX(0) rotateY(0) translateZ(0)';
+    wrapper.style.transform = 'none';
     wrapper.style.transition = 'transform 0.5s ease';
   });
 }
@@ -843,7 +890,7 @@ if (wrapper) {
 
         // 播放器邏輯
         function loadSong(song) {
-            document.getElementById('track-name').innerText = song.title;
+            document.getElementById('track-name').innerHTML = wrapCJK(song.title);
             audio.src = song.src;
             cover.src = song.cover;
             cover.onerror = () => cover.src = 'https://via.placeholder.com/55/333/fff?text=♪';
@@ -957,8 +1004,8 @@ function createLoopingTypewriter(element, texts, typingSpeed = 100, deletingSpee
       charIndex++;
     }
     
-    // 顯示文字和光標
-    element.innerHTML = currentText + '<span class="cursor">|</span>';
+    // 顯示文字和光標（中文包進 .cjk 修正基線）
+    element.innerHTML = wrapCJK(currentText) + '<span class="cursor">|</span>';
     
     let timeout = isDeleting ? deletingSpeed : typingSpeed;
     
@@ -1176,7 +1223,9 @@ window.addEventListener('load', () => {
                     discordElements.onlineCount.textContent = onlineMembers.toLocaleString('zh-TW');
                 }
                 if (discordElements.serverName) {
-                    discordElements.serverName.textContent = serverName;
+                    // 先轉義再包 .cjk（伺服器名來自 API，不能直接塞 innerHTML）
+                    const safeName = serverName.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+                    discordElements.serverName.innerHTML = wrapCJK(safeName);
                 }
                 if (discordElements.joinBtn) {
                     discordElements.joinBtn.href = `https://discord.gg/${DISCORD_INVITE_CODE}`;
